@@ -273,7 +273,7 @@ public class DBConnection {
 		Connection dbConn = null;
 		dbConn = DBConnection.createConnection();
 		Statement stmt = dbConn.createStatement();
-		String query = "select * from parkingtrade pt, parkingspace ps, car c where pt.parkingspaceid=ps.ID AND pt.carid=c.ID AND30 ps.userid="+Integer.toString(userid)+";";
+		String query = "select * from parkingtrade pt, parkingspace ps, car c where pt.parkingspaceid=ps.ID AND pt.carid=c.ID AND ps.userid="+Integer.toString(userid)+";";
 		System.out.println(query);
 		ResultSet rs = stmt.executeQuery(query);
 		String string = Utility.constructJSONParkingTradeAsLandlordResponse(rs);
@@ -306,6 +306,23 @@ public class DBConnection {
 		}
 		
 		return insertStatus;
+	}
+	
+	public static boolean hasBalance(int price, int tenantid) throws SQLException, Exception {
+		int balance = 0;
+		Connection dbConn = DBConnection.createConnection();
+		Statement stmt = dbConn.createStatement();
+		String query = "SELECT balance FROM user WHERE userid= "+ Integer.toString(tenantid) + ";";
+		System.out.println(query);
+		ResultSet rs = stmt.executeQuery(query);
+		while(rs.next()) {
+			balance = rs.getInt("balance");
+		}
+		if (dbConn != null) {
+			dbConn.close();
+		}
+		
+		return (balance >= price);
 	}
 
 	public static String getParkingOfferbyUser(int userid) throws SQLException, Exception{

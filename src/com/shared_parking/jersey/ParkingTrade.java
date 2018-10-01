@@ -125,18 +125,22 @@ public class ParkingTrade {
         minutes = minutes + 1;
         int gesamtprice = (int) (((double)price/60)*minutes);
 		
-		if(tenantid == -1) {
-			response = Utility.constructJSON("/parkingtrade/create",false, "Authentifizierung mit auth_token fehlgeschlagen!");
-		}
-		else {
-			try {
-				if(DBConnection.insertParkingTrade(gesamtprice, start_dt, end_dt, parkingspaceid, tenantid) & DBConnection.setBalance(tenantid, -gesamtprice) & DBConnection.setBalance(landlordid, gesamtprice)) response = Utility.constructJSON("/parkingtrade/create",true);
-				else response = Utility.constructJSON("/parkingtrade/create",false, "Error occured");
-			} catch (Exception e) {
-				response = Utility.constructJSON("/parkingtrade/create",false, "Error occured");
-				e.printStackTrace();
-			}
-		}
+        try {
+        	if(tenantid == -1) {
+        		response = Utility.constructJSON("/parkingtrade/create",false, "Authentifizierung mit auth_token fehlgeschlagen!");
+        	}
+        	else if(!DBConnection.hasBalance(gesamtprice, tenantid)) {
+        		response = Utility.constructJSON("/parkingtrade/create",false, "Please recharge your balance!");
+        	}
+        	else {
+        		if(DBConnection.insertParkingTrade(gesamtprice, start_dt, end_dt, parkingspaceid, tenantid) & DBConnection.setBalance(tenantid, -gesamtprice) & DBConnection.setBalance(landlordid, gesamtprice)) response = Utility.constructJSON("/parkingtrade/create",true,"You have booked a parking space");
+        		else response = Utility.constructJSON("/parkingtrade/create",false, "Error occured");
+        	} 
+        }
+        catch (Exception e) {
+        	response = Utility.constructJSON("/parkingtrade/create",false, "Error occured");
+        	e.printStackTrace();
+        }
 		return response;
 
 	}	
