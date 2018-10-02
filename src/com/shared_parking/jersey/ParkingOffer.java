@@ -2,6 +2,8 @@ package com.shared_parking.jersey;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -116,18 +118,29 @@ public class ParkingOffer {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		if(userid == -1) {
-			response = Utility.constructJSON("/parkingoffer/create",false, "Authentifizierung mit auth_token fehlgeschlagen!");
-		}
-		else {
-			try {
-				if(DBConnection.insertParkingOffer(price, start_dt, end_dt, parkingspaceid)) response = Utility.constructJSON("/parkingoffer/create",true);
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime ldtstart = LocalDateTime.parse(start_dt, formatter);
+		LocalDateTime ldtend = LocalDateTime.parse(end_dt, formatter);	
+		
+		try {
+			if(userid == -1) {
+				response = Utility.constructJSON("/parkingoffer/create",false, "Authentifizierung mit auth_token fehlgeschlagen!");
+			}
+			else if (ldtend.isBefore(ldtstart)) {
+				response = Utility.constructJSON("/parkingoffer/create",false, "Enddate and time has to be after Startdate and time!");
+			}
+			else if (!DBConnection.isOwned(parkingspaceid, userid)) {
+				response = Utility.constructJSON("/parkingoffer/create",false, "Parkingspace is not owned by you!!");
+			}
+			else {
+				if(DBConnection.insertParkingOffer(price, start_dt, end_dt, parkingspaceid)) response = Utility.constructJSON("/parkingoffer/create",true, "Created Parking Offer!");
 				else response = Utility.constructJSON("/parkingoffer/create",false, "Error occured");
-			} catch (Exception e) {
+			} 
+		} catch (Exception e) {
 				response = Utility.constructJSON("/parkingoffer/create",false, "Error occured");
 				e.printStackTrace();
 			}
-		}
 		return response;
 
 	}	

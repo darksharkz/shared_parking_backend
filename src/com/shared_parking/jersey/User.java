@@ -45,7 +45,7 @@ public class User {
 			//System.out.println("Inside doLogin "+ name + username + password);
 			int retCode = registerUser(mail, firstname, lastname, password);
 			if(retCode == 0){
-				response = Utility.constructJSON("register",true);
+				response = Utility.constructJSON("register",true, "You have successfully registered!");
 			}else if(retCode == 1){
 				response = Utility.constructJSON("register",false, "You are already registered");
 			}else if(retCode == 2){
@@ -222,9 +222,11 @@ public class User {
 		// Query parameters are parameters: http://localhost/<appln-folder-name>/register/doregister?name=pqrs&username=abc&password=xyz
 		public String setBalace(JSONObject datajson){
 			String response = "";
+			String auth_token = "";
 			int userid = -1, change = 0;
 			try {
-				userid = datajson.getInt("userid");
+				auth_token = datajson.getString("auth_token");
+				userid = DBConnection.getUserID(auth_token);
 				change = datajson.getInt("change");
 			} catch (JSONException e) {
 				response = Utility.constructJSON("change balance",false, "Error occured");

@@ -312,7 +312,7 @@ public class DBConnection {
 		int balance = 0;
 		Connection dbConn = DBConnection.createConnection();
 		Statement stmt = dbConn.createStatement();
-		String query = "SELECT balance FROM user WHERE userid= "+ Integer.toString(tenantid) + ";";
+		String query = "SELECT balance FROM user WHERE ID= "+ Integer.toString(tenantid) + ";";
 		System.out.println(query);
 		ResultSet rs = stmt.executeQuery(query);
 		while(rs.next()) {
@@ -323,6 +323,21 @@ public class DBConnection {
 		}
 		
 		return (balance >= price);
+	}
+	
+	public static boolean isOwned(int parkingspaceid, int userid) throws SQLException, Exception {
+		int balance = 0;
+		Connection dbConn = DBConnection.createConnection();
+		Statement stmt = dbConn.createStatement();
+		String query = "SELECT * FROM parkingspace WHERE ID="+ Integer.toString(parkingspaceid) + " AND userid=" + Integer.toString(userid) +";";
+		System.out.println(query);
+		ResultSet rs = stmt.executeQuery(query);
+		int records = 0;
+		while(rs.next()) {
+			records++;
+		}
+		
+		return (records >= 1);
 	}
 
 	public static String getParkingOfferbyUser(int userid) throws SQLException, Exception{

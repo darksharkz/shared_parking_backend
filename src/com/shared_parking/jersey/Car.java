@@ -101,7 +101,7 @@ public class Car {
 	public String insertParkingSpace(JSONObject datajson){
 		String response = "";
 		String licenseplate = "", auth_token = "";
-		boolean active = false;
+		boolean active = true;
 		int userid = -1;
 		try {
 			auth_token = datajson.getString("auth_token");
